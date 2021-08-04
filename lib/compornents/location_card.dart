@@ -1,34 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:my_weather_app/constraints.dart';
+import 'package:my_weather_app/model/model.dart';
 
 class LocationCard extends StatelessWidget {
   const LocationCard({
     Key? key,
+    required this.weatherDataModel,
+    required this.deleteIndexCallback,
+    required this.index,
+    required this.updateModelCallback,
   }) : super(key: key);
+
+  final WeatherDataModel weatherDataModel;
+  final Function deleteIndexCallback;
+  final Function updateModelCallback;
+  final int index;
 
   @override
   Widget build(BuildContext context) {
     final TextTheme _textTheme = Theme.of(context).textTheme;
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(15.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
-              //mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'search date',
+                  '${weatherDataModel.date}',
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                Icon(Icons.refresh)
+                IconButton(
+                    onPressed: () {
+                      updateModelCallback(index, weatherDataModel.locationName);
+                    },
+                    icon: const Icon(Icons.refresh)),
+                const Expanded(child: SizedBox()),
+                IconButton(
+                    onPressed: () => deleteIndexCallback(index),
+                    icon: const Icon(
+                      Icons.clear,
+                      color: kcDisableIcon,
+                    ))
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             Text(
-              'Location Name',
+              weatherDataModel.locationName,
               style: Theme.of(context).textTheme.headline5,
             ),
             const Divider(
@@ -39,35 +60,8 @@ class LocationCard extends StatelessWidget {
             ),
             Row(
               children: [
-                Icon(
-                  Icons.location_on,
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  'Address',
-                  style: Theme.of(context).textTheme.subtitle2,
-                )
-              ],
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              'Address Text',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            const Divider(
-              height: 20,
-              thickness: 1,
-              indent: 30,
-              endIndent: 30,
-            ),
-            Row(
-              children: [
-                Icon(Icons.wb_sunny),
-                SizedBox(
+                const Icon(Icons.wb_sunny),
+                const SizedBox(
                   width: 5,
                 ),
                 Text(
@@ -76,28 +70,22 @@ class LocationCard extends StatelessWidget {
                 )
               ],
             ),
-            SizedBox(
-              height: 10.0,
-            ),
             Row(
               children: [
                 Text(
-                  '00',
+                  weatherDataModel.temperature.toStringAsFixed(1),
                   style: _textTheme.headline4,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10.0,
                 ),
                 Text(
                   '℃',
                   style: _textTheme.headline5,
                 ),
-                Expanded(child: SizedBox()),
-                Container(
-                  color: Colors.blue,
-                  child: Text('weater icon'),
-                ),
-                Expanded(child: SizedBox()),
+                const Expanded(child: SizedBox()),
+                Image.network(weatherDataModel.iconImageURL),
+                const Expanded(child: SizedBox()),
                 Column(
                   children: [
                     Row(
@@ -107,13 +95,13 @@ class LocationCard extends StatelessWidget {
                           style: _textTheme.bodyText2,
                         ),
                         Text(
-                          '+15',
+                          weatherDataModel.temperatureGapText,
                           style: _textTheme.bodyText1,
                         )
                       ],
                     ),
                     Text(
-                      'weather condition',
+                      weatherDataModel.condition,
                       style: _textTheme.bodyText2,
                     )
                   ],

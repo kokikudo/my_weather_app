@@ -27,6 +27,7 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
     compileSdkVersion 30
+    //geocoding 2.0.0のパケを使うときはここを28にする必要があると記載されていた
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

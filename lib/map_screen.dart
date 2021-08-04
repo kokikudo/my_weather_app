@@ -3,9 +3,18 @@ import 'package:provider/provider.dart';
 import 'constraints.dart';
 import 'weather_brain.dart';
 import 'compornents/location_card.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
   const MapScreen({Key? key}) : super(key: key);
+
+  @override
+  State<MapScreen> createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  String _inputText = '';
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -24,40 +33,79 @@ class MapScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline4,
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
-                  Container(
-                    //height: 20,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: Text('ADD LOCATION'),
-                        ),
-                        Expanded(child: SizedBox()),
-                        ElevatedButton(
-                            onPressed: () {}, child: Icon(Icons.sort)),
-                        SizedBox(
-                          width: 10.0,
-                        ),
-                        ElevatedButton(
-                            onPressed: () {}, child: Icon(Icons.sort_by_alpha)),
-                      ],
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          final alert = Alert(
+                              context: context,
+                              title: 'Search Location',
+                              content: TextField(
+                                controller: _controller,
+                                decoration: const InputDecoration(
+                                    icon: Icon(Icons.location_city),
+                                    hintText: 'location name'),
+                              ),
+                              buttons: [
+                                DialogButton(
+                                  child: Text(
+                                    'SEARCH',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .subtitle1!
+                                        .copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                                  onPressed: () {
+                                    _inputText = _controller.text;
+                                    _controller.clear();
+                                    brain.addLocation(_inputText);
+                                    Navigator.pop(_);
+                                  },
+                                  color: kcOrange,
+                                ),
+                              ]);
+                          alert.show();
+                        },
+                        child: const Text('ADD LOCATION'),
+                      ),
+                      const Expanded(child: SizedBox()),
+                      ElevatedButton(
+                          onPressed: () => brain.sortByUpdate(),
+                          child: const Icon(Icons.sort)),
+                      const SizedBox(
+                        width: 10.0,
+                      ),
+                      ElevatedButton(
+                          onPressed: () => brain.sortByLocationName(),
+                          child: const Icon(Icons.sort_by_alpha)),
+                    ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 10,
                   ),
                   Expanded(
-                    child: ListView(
-                      children: [
-                        LocationCard(),
-                        LocationCard(),
-                        LocationCard(),
-                      ],
-                    ),
+                    child: ListView.builder(
+                        itemCount: brain.getModelsCount,
+                        itemBuilder: (context, index) {
+                          return LocationCard(
+                            weatherDataModel: brain.getModels[index],
+                            deleteIndexCallback: brain.deleteModel,
+                            updateModelCallback: brain.updateWeatherModel,
+                            index: index,
+                          );
+                        }),
+                    // child: ListView(
+                    //   children: brain.getModels
+                    //       .map((WeatherDataModel model) =>
+                    //           LocationCard(weatherDataModel: model))
+                    //       .toList(),
+                    // ),
                   ),
                 ],
               ),
@@ -70,13 +118,5 @@ class MapScreen extends StatelessWidget {
 }
 
 ///TODO 明日の作業
-///Location Brainにモデルを入れる空のリストを作成
-///Location Brainにリストを取得するget関数をかく
-///ADDLOCATIONボタンを押すと地名を入れるアラートを出す
-///地名を入れた状態でSearchボタンを押すと地名をもとに天気データ取得
-///↑の作業中は画面全体をサークルでかぶせ、他の作業ができないようにする
-///天気の情報をモデル化し、リストに入れる
-///リストをもとにCardを作る
-///更新ボタンを押すと地名で再度取得する
-///↑の作業中はそのCardのなかだけをサークルで覆う
-///ソート機能を実装する
+///余裕があれば消える時にアニメーションを追加する
+///余裕があれば日本語化　Openweatherのlangパラメーターを使う
